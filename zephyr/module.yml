@@ -1,0 +1,4 @@
+name: SwiftZephyr
+build:
+  cmake: .
+  kconfig: Kconfig
