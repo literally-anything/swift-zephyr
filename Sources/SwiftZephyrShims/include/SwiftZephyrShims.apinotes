@@ -1,0 +1,68 @@
+Name: SwiftZephyrShims
+Typedefs:
+- Name: device_handle_t
+  SwiftName: DeviceHandle
+  SwiftWrapper: struct
+- Name: _error
+  SwiftName: ZephyrError
+  SwiftWrapper: struct
+  SwiftConformsTo: Swift.Error
+Tags:
+# -------- Device --------
+- Name: device
+  SwiftName: Device
+  SwiftImportAs: reference
+  SwiftReleaseOp: immortal
+  SwiftRetainOp: immortal
+# -------- Time --------
+- Name: timespec
+  SwiftName: Timespec
+- Name: k_timeout_t
+  SwiftName: Timeout
+  SwiftConformsTo: Swift.Equatable
+- Name: k_timepoint_t
+  SwiftName: Timepoint
+  SwiftConformsTo: Swift.Equatable
+Functions:
+# -------- Device --------
+- Name: device_from_handle
+  SwiftName: Device.init(_:)
+  SwiftSafety: safe
+  ResultType: const struct device * _Nullable
+- Name: device_get_binding
+  SwiftName: Device.init(runtimeName:)
+  SwiftSafety: safe
+  ResultType: const struct device * _Nullable
+- Name: device_init
+  SwiftName: Device._initialize(self:)
+  ResultType: _error
+- Name: device_deinit
+  SwiftName: Device._deinitialize(self:)
+  ResultType: _error
+- Name: device_handle_get
+  SwiftName: getter:Device.handle(self:)
+- Name: device_is_ready
+  SwiftName: getter:Device.isReady(self:)
+- Name: device_injected_handles_get
+  SwiftName: Device._get_injected_handles(self:count:)
+- Name: device_required_handles_get
+  SwiftName: Device._get_required_handles(self:count:)
+- Name: device_supported_handles_get
+  SwiftName: Device._get_supported_handles(self:count:)
+# -------- Time --------
+- Name: timespec_is_valid
+  SwiftName: getter:Timespec.isValid(self:)
+- Name: _sToKTimeout
+  SwiftName: Timeout.seconds(_:)
+- Name: _msToKTimeout
+  SwiftName: Timeout.milliseconds(_:)
+- Name: _usToKTimeout
+  SwiftName: Timeout.microseconds(_:)
+- Name: _nsToKTimeout
+  SwiftName: Timeout.nanoseconds(_:)
+- Name: sys_timepoint_calc
+  SwiftName: Timepoint.init(timeout:)
+- Name: sys_timepoint_expired
+  SwiftName: getter:Timepoint.expired(self:)
+- Name: sys_timepoint_timeout
+  SwiftName: getter:Timepoint.timeout(self:)

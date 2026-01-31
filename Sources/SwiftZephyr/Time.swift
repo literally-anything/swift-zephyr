@@ -6,114 +6,139 @@
  * Copyright (C) 2025-2025, by Hunter Baker hunter@literallyanything.net
  */
 
-internal import SwiftZephyrShims
+public import SwiftZephyrShims
 
-/// Represents a point in time using Zephyr's timespec structure.
-public struct Time: @unchecked Sendable, SendableMetatype {
-    /// The underlying Zephyr timespec structure.
-    public let timespec: SwiftZephyrShims.timespec
-}
+@_exported public import struct SwiftZephyrShims.Timespec
+@_exported public import struct SwiftZephyrShims.Timeout
+@_exported public import struct SwiftZephyrShims.Timepoint
 
-extension Time: Equatable, Hashable {
-    public static func == (lhs: Time, rhs: Time) -> Bool {
-        lhs.timespec.tv_sec == rhs.timespec.tv_sec &&
-        lhs.timespec.tv_nsec == rhs.timespec.tv_nsec
+// -------- Timespec --------
+
+// Conformances
+extension Timespec: Swift.Equatable, Swift.Hashable {
+    public static func == (lhs: Timespec, rhs: Timespec) -> Bool {
+        unsafe withUnsafePointer(to: lhs) { lhs in
+            unsafe withUnsafePointer(to: rhs) { rhs in
+                unsafe timespec_equal(lhs, rhs)
+            }
+        }
     }
-
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(timespec.tv_sec)
-        hasher.combine(timespec.tv_nsec)
+        hasher.combine(tv_sec)
+        hasher.combine(tv_nsec)
     }
 }
 
-/// Represents a timeout value for Zephyr kernel operations.
-public struct Timeout: @unchecked Sendable, SendableMetatype {
-    /// The underlying Zephyr time value.
-    public let timeout: k_timeout_t
-
-    /// Creates a `Timeout` from a Zephyr timeout value.
-    /// - Parameter timeout: A Zephyr timeout value.
-    public init(timeout: k_timeout_t) {
-        self.timeout = timeout
+// Helpers
+extension Timespec {
+    /// Creates a `Timespec` structure from a Zephyr `Timeout`.
+    /// - Parameter timeout: A Zephyr `Timeout`.
+    public init(_ timeout: borrowing Timeout) {
+        var ts = Timespec()
+        unsafe timespec_from_timeout(timeout, &ts)
+        self = ts
     }
 
-    /// Creates a `Timeout` representing the specified number of seconds.
-    /// - Parameter seconds: The number of seconds.
-    /// - Returns: A `Timeout` instance.
-    public static func seconds(_ seconds: Int32) -> Timeout {
-        Timeout(timeout: _sToKTimeout(seconds))
+    /// Get the current time using `SYS_CLOCK_MONOTONIC`.
+    public static var now: Timespec {
+        var time = Timespec()
+        let ret = unsafe sys_clock_gettime(SYS_CLOCK_MONOTONIC, &time)
+        assert(ret == 0, "Timespec monotonic clock ID is wrong")
+        return time
     }
-    /// Creates a `Timeout` representing the specified number of milliseconds.
-    /// - Parameter milliseconds: The number of milliseconds.
-    /// - Returns: A `Timeout` instance.
-    public static func milliseconds(_ milliseconds: Int32) -> Timeout {
-        Timeout(timeout: _msToKTimeout(milliseconds))
+    /// Get the current time using `SYS_CLOCK_REALTIME`.
+    public static var nowRealtime: Timespec {
+        var time = Timespec()
+        let ret = unsafe sys_clock_gettime(SYS_CLOCK_REALTIME, &time)
+        assert(ret == 0, "Timespec realtime clock ID is wrong")
+        return time
     }
-    /// Creates a `Timeout` representing the specified number of microseconds.
-    /// - Parameter microseconds: The number of microseconds.
-    /// - Returns: A `Timeout` instance.
-    public static func microseconds(_ microseconds: Int32) -> Timeout {
-        Timeout(timeout: _usToKTimeout(microseconds))
+}
+extension Timespec {
+    public static func +=(lhs: inout Timespec, rhs: Timespec) {
+        let success: Bool = unsafe withUnsafePointer(to: rhs) { rhs in
+            unsafe timespec_add(&lhs, rhs)
+        }
+        guard success else {
+            fatalError("Integer overflow while adding timespec")
+        }
     }
-    /// Creates a `Timeout` representing the specified number of nanoseconds.
-    /// - Parameter nanoseconds: The number of nanoseconds.
-    /// - Returns: A `Timeout` instance.
-    public static func nanoseconds(_ nanoseconds: Int32) -> Timeout {
-        Timeout(timeout: _nsToKTimeout(nanoseconds))
+    public static func -=(lhs: inout Timespec, rhs: Timespec) {
+        let success: Bool = unsafe withUnsafePointer(to: rhs) { rhs in
+            unsafe timespec_sub(&lhs, rhs)
+        }
+        assert(success, "Integer overflow while subtracting timespec")
+    }
+    public static prefix func -(lhs: inout Timespec) {
+        let success: Bool = unsafe timespec_negate(&lhs)
+        assert(success, "Integer overflow while negating timespec")
+    }
+    /// Normalize a timespec by adjusting the tv_sec and tv_nsec fields so that the tv_nsec field is in the range [0, NSEC_PER_SEC-1].
+    /// This is achieved by converting nanoseconds to seconds and accumulating seconds in either the positive direction when tv_nsec > NSEC_PER_SEC, or in the negative direction when tv_nsec < 0.
+    public mutating func normalize() {
+        let success: Bool = unsafe timespec_normalize(&self)
+        assert(success, "Integer overflow while normalizing timespec")
+    }
+
+    public static func +(lhs: Timespec, rhs: Timespec) -> Timespec {
+        var sum = lhs
+        sum += rhs
+        return sum
+    }
+    public static func -(lhs: Timespec, rhs: Timespec) -> Timespec {
+        var sum = lhs
+        sum -= rhs
+        return sum
+    }
+    /// Normalize a timespec by adjusting the tv_sec and tv_nsec fields so that the tv_nsec field is in the range [0, NSEC_PER_SEC-1].
+    /// This is achieved by converting nanoseconds to seconds and accumulating seconds in either the positive direction when tv_nsec > NSEC_PER_SEC, or in the negative direction when tv_nsec < 0.
+    public var normalized: Timespec {
+        var time: Timespec = self
+        time.normalize()
+        return time
+    }
+}
+extension Timespec {
+    /// Get the duration from one time to another as a `Timeout`.
+    /// - Parameter other: The end `Timespec`.
+    /// - Returns: A `Timeout`.
+    public func timeout(to other: Timespec) -> Timeout {
+        Timeout(other - self)
     }
 }
 
+// -------- Timeout --------
+
+// Conformances
+extension Timeout: Swift.ExpressibleByIntegerLiteral {
+    /// Initialize using an integer literal representing milliseconds.
+    /// - Parameter value: The value in milliseconds.
+    public init(integerLiteral milliseconds: Int32) {
+        self = Timeout.milliseconds(milliseconds)
+    }
+}
+
+// Helpers
 extension Timeout {
     /// Represents an infinite timeout.
     public static var infinite: Timeout {
-        Timeout(timeout: k_timeout_t(ticks: -1))
+        Timeout(ticks: -1)
     }
 
     /// Represents a zero timeout.
     public static var zero: Timeout {
-        Timeout(timeout: k_timeout_t(ticks: 0))
+        Timeout(ticks: 0)
     }
-
     /// Represents a zero timeout.
     public static var immediate: Timeout {
         .zero
     }
-}
 
-extension Timeout: ExpressibleByIntegerLiteral {
-    /// Initialize using an integer literal representing milliseconds.
-    /// - Parameter value: The value in milliseconds.
-    public init(integerLiteral milliseconds: Int32) {
-        self.timeout = _msToKTimeout(milliseconds)
-    }
-}
-
-extension Timeout: Equatable, Hashable {
-    public static func == (lhs: Timeout, rhs: Timeout) -> Bool {
-        lhs.timeout.ticks == rhs.timeout.ticks
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(timeout.ticks)
-    }
-}
-
-extension Timeout {
-    /// Initialize a `Timeout` from a `Time` instance.
-    /// - Parameter time: A `Time` instance.
-    public init(_ time: borrowing Time) {
-        self.timeout = withUnsafePointer(to: time.timespec) { timespecPtr in
-            timespec_to_timeout(timespecPtr)
+    /// Initialize a `Timeout` from a `Timespec` structure.
+    /// - Parameter timespec: A `Timespec` structure.
+    public init(_ timespec: borrowing Timespec) {
+        self = unsafe withUnsafePointer(to: timespec) { timespec in
+            unsafe timespec_to_timeout(timespec, nil)
         }
-    }
-}
-
-extension Time {
-    /// Creates a `Time` instance from a Zephyr `Timeout`.
-    /// - Parameter timeout: A Zephyr `Timeout`.
-    public init(_ timeout: borrowing Timeout) {
-        var ts = SwiftZephyrShims.timespec()
-        timespec_from_timeout(timeout.timeout, &ts)
-        self.timespec = ts
     }
 }

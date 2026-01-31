@@ -10,3 +10,5 @@ if ("Swift" IN_LIST ENABLED_LANGUAGES)
 
     add_subdirectory(Sources)
 endif()
+
+add_compile_options("$<$<COMPILE_LANGUAGE:Swift>:SHELL:-package-name SwiftZephyr>")

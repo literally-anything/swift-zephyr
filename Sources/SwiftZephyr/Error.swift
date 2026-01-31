@@ -6,14 +6,10 @@
  * Copyright (C) 2025-2025, by Hunter Baker hunter@literallyanything.net
  */
 
-internal import SwiftZephyrShims
+@_exported public import struct SwiftZephyrShims.ZephyrError
 
-public struct ZephyrError: Error {
-    public var code: Int32
-
-    public init(code: Int32) {
-        self.code = code
+extension ZephyrError {
+    internal var isError: Bool {
+        rawValue != 0
     }
-
-    // ToDo: Make this more user-friendly.
 }

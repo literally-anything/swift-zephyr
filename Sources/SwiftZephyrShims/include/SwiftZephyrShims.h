@@ -8,10 +8,14 @@
 
 #pragma once
 
+/// A POSIX error code from Zephyr.
+typedef int _error;
+
 #include <autoconf.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
+#include <zephyr/devicetree.h>
 #include <zephyr/sys/reboot.h>
 #include <zephyr/sys/timeutil.h>
 
@@ -19,16 +23,29 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/dt-bindings/gpio/gpio.h>
 #include <zephyr/drivers/led.h>
+#include <zephyr/drivers/uart.h>
 
-inline k_timeout_t _sToKTimeout(int32_t s) {
-    return K_SECONDS(s);
+/// Creates a `Timeout` representing the specified number of seconds.
+/// - Parameter seconds: The number of seconds.
+/// - Returns: An initialized `Timeout` structure.
+inline k_timeout_t _sToKTimeout(int32_t seconds) {
+    return K_SECONDS(seconds);
 }
-inline k_timeout_t _msToKTimeout(int32_t ms) {
-    return K_MSEC(ms);
+/// Creates a `Timeout` representing the specified number of milliseconds.
+/// - Parameter milliseconds: The number of milliseconds.
+/// - Returns: An initialized `Timeout` structure.
+inline k_timeout_t _msToKTimeout(int32_t milliseconds) {
+    return K_MSEC(milliseconds);
 }
-inline k_timeout_t _usToKTimeout(int32_t us) {
-    return K_USEC(us);
+/// Creates a `Timeout` representing the specified number of microseconds.
+/// - Parameter microseconds: The number of microseconds.
+/// - Returns: An initialized `Timeout` structure.
+inline k_timeout_t _usToKTimeout(int32_t microseconds) {
+    return K_USEC(microseconds);
 }
-inline k_timeout_t _nsToKTimeout(int32_t ns) {
-    return K_NSEC(ns);
+/// Creates a `Timeout` representing the specified number of nanoseconds.
+/// - Parameter nanoseconds: The number of nanoseconds.
+/// - Returns: An initialized `Timeout` structure.
+inline k_timeout_t _nsToKTimeout(int32_t nanoseconds) {
+    return K_NSEC(nanoseconds);
 }

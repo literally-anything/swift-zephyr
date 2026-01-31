@@ -1,0 +1,11 @@
+/*
+ * MacroConfig.swift.in
+ * cmake
+ * 
+ * Created by Hunter Baker on 1/30/2026
+ * Copyright (C) 2026-2026, by Hunter Baker hunter@literallyanything.net
+ */
+
+public let generatedHeader: String = """
+@DEVICETREE_GENERATED_H_CONTENTS@
+"""

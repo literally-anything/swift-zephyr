@@ -120,7 +120,7 @@ extension Thread {
     /// - Returns: `true` if the sleep completed without interruption, `false` if the thread was woken early.
     @discardableResult
     public static func sleep(for timeout: Timeout) -> Bool {
-        let ret = k_sleep(timeout.timeout)
+        let ret = k_sleep(timeout)
         return ret == 0
     }
 }

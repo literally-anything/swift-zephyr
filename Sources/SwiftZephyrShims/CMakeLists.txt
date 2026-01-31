@@ -4,4 +4,8 @@ target_include_directories(SwiftZephyrShims INTERFACE
     include
 )
 
+target_compile_options(SwiftZephyrShims INTERFACE
+    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -fapinotes-modules>"
+)
+
 add_dependencies(SwiftZephyrShims syscall_list_h_target)

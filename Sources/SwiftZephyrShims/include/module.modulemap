@@ -1,3 +1,4 @@
 module SwiftZephyrShims {
   header "SwiftZephyrShims.h"
+  export *
 }
