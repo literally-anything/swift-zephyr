@@ -112,10 +112,10 @@ public enum DeviceTree: SendableMetatype {
 }
 
 @freestanding(expression)
-public macro dtDevice(_: any StringProtocol) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(_: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
 @freestanding(expression)
-public macro dtDevice(path: any StringProtocol) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(path: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
 @freestanding(expression)
-public macro dtDevice(label: any StringProtocol) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(label: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
 @freestanding(expression)
-public macro dtDevice(alias: any StringProtocol) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(alias: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")

@@ -6,6 +6,9 @@
  * Copyright (C) 2026-2026, by Hunter Baker hunter@literallyanything.net
  */
 
+// I know that this solution is terrible, but Swift macro's are not allowed to read random files,
+// so passing the file path does not work. I am still looking for some better way to pass this to the macro process.
+
 public let generatedHeader: String = """
 @DEVICETREE_GENERATED_H_CONTENTS@
 """
