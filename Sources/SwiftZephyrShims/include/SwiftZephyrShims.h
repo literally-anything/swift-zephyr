@@ -9,7 +9,7 @@
 #pragma once
 
 /// A POSIX error code from Zephyr.
-typedef int _error;
+typedef int zephyr_error_t;
 
 #include <autoconf.h>
 

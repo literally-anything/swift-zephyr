@@ -1,12 +1,14 @@
 Name: SwiftZephyrShims
 Typedefs:
-- Name: device_handle_t
-  SwiftName: DeviceHandle
-  SwiftWrapper: struct
-- Name: _error
+- Name: zephyr_error_t
   SwiftName: ZephyrError
   SwiftWrapper: struct
   SwiftConformsTo: Swift.Error
+# -------- Device --------
+- Name: device_handle_t
+  SwiftName: DeviceHandle
+  SwiftWrapper: struct
+
 Tags:
 # -------- Device --------
 - Name: device
@@ -23,6 +25,7 @@ Tags:
 - Name: k_timepoint_t
   SwiftName: Timepoint
   SwiftConformsTo: Swift.Equatable
+
 Functions:
 # -------- Device --------
 - Name: device_from_handle
@@ -35,10 +38,10 @@ Functions:
   ResultType: const struct device * _Nullable
 - Name: device_init
   SwiftName: Device._initialize(self:)
-  ResultType: _error
+  ResultType: zephyr_error_t
 - Name: device_deinit
   SwiftName: Device._deinitialize(self:)
-  ResultType: _error
+  ResultType: zephyr_error_t
 - Name: device_handle_get
   SwiftName: getter:Device.handle(self:)
 - Name: device_is_ready
