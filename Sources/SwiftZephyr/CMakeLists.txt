@@ -8,16 +8,18 @@ swiftzephyr_dt_generate(
 )
 
 # Setup the library target
-# file(GLOB_RECURSE SWIFTZEPHYR_SOURCES CONFIGURE_DEPENDS "*.swift")
-file(GLOB SWIFTZEPHYR_SOURCES CONFIGURE_DEPENDS "*.swift")
-add_library(SwiftZephyr STATIC ${SWIFTZEPHYR_SOURCES} ${SWIFTZEPHYR_DT_WRAPPER_PATH})
+add_library(SwiftZephyr STATIC
+    Device.swift
+    Error.swift
+    Reset.swift
+    Thread.swift
+    Time.swift
+    ${SWIFTZEPHYR_DT_WRAPPER_PATH}
+)
 set_target_properties(SwiftZephyr PROPERTIES Swift_MODULE_NAME Zephyr)
 
+target_link_libraries(SwiftZephyr PUBLIC SwiftZephyrMacros)
 target_link_libraries(SwiftZephyr PUBLIC SwiftZephyrShims)
- 
-# Setup the macros and their flags
-add_dependencies(SwiftZephyr SwiftZephyrMacros)
-target_compile_options(SwiftZephyr PUBLIC ${SWIFTZEPHYR_MACRO_OPTIONS})
 
 target_compile_options(SwiftZephyr PRIVATE
     # For Mutex implementation
@@ -42,30 +44,30 @@ target_compile_options(SwiftZephyr PRIVATE
 # Pass along some config parameters to swift so that we can use conditional compilation with them
 
 if(CONFIG_LED)
-    target_compile_options(SwiftZephyr PUBLIC -DCONFIG_LED)
+    target_compile_definitions(SwiftZephyr PUBLIC CONFIG_LED)
 endif()
 
 # if(CONFIG_SCHED_CPU_MASK)
-#     target_compile_options(SwiftZephyr PUBLIC -DCONFIG_SCHED_CPU_MASK)
+#     target_compile_definitions(SwiftZephyr PUBLIC CONFIG_SCHED_CPU_MASK)
 # endif()
 
 # if(CONFIG_SERIAL)
-#     target_compile_options(SwiftZephyr PUBLIC -DCONFIG_SERIAL)
+#     target_compile_definitions(SwiftZephyr PUBLIC CONFIG_SERIAL)
 # endif()
 # if(CONFIG_UART_USE_RUNTIME_CONFIGURE)
-#     target_compile_options(SwiftZephyr PUBLIC -DCONFIG_UART_USE_RUNTIME_CONFIGURE)
+#     target_compile_definitions(SwiftZephyr PUBLIC CONFIG_UART_USE_RUNTIME_CONFIGURE)
 # endif()
 # if(CONFIG_UART_ASYNC_API)
-#     target_compile_options(SwiftZephyr PUBLIC -DCONFIG_UART_ASYNC_API)
+#     target_compile_definitions(SwiftZephyr PUBLIC CONFIG_UART_ASYNC_API)
 # endif()
 
 if(CONFIG_DEVICE_DEINIT_SUPPORT)
-    target_compile_options(SwiftZephyr PUBLIC -DCONFIG_DEVICE_DEINIT_SUPPORT)
+    target_compile_definitions(SwiftZephyr PUBLIC CONFIG_DEVICE_DEINIT_SUPPORT)
 endif()
 if(CONFIG_DEVICE_DEPS)
-    target_compile_options(SwiftZephyr PUBLIC -DCONFIG_DEVICE_DEPS)
+    target_compile_definitions(SwiftZephyr PUBLIC CONFIG_DEVICE_DEPS)
 endif()
 
 if(CONFIG_HWINFO)
-    target_compile_options(SwiftZephyr PUBLIC -DCONFIG_HWINFO)
+    target_compile_definitions(SwiftZephyr PUBLIC CONFIG_HWINFO)
 endif()

@@ -8,32 +8,33 @@ endif()
 # Load the macro module as an external project
 string(STRIP ${DEVICETREE_GENERATED_H} DEVICETREE_GENERATED_H_STRIPPED)
 include(ExternalProject)
-ExternalProject_Add(SwiftZephyrMacros
-  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SwiftZephyrMacros"
-  INSTALL_COMMAND ""
-  LOG_CONFIGURE 1
-  CMAKE_ARGS "-DDEVICETREE_GENERATED_H:STRING='${DEVICETREE_GENERATED_H_STRIPPED}'" "-DCMAKE_BUILD_TYPE:STRING=Debug"
+ExternalProject_Add(SwiftZephyrMacrosImpl
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SwiftZephyrMacros"
+    INSTALL_COMMAND ""
+    LOG_CONFIGURE 1
+    CMAKE_ARGS "-DDEVICETREE_GENERATED_H:STRING='${DEVICETREE_GENERATED_H_STRIPPED}'" "-DCMAKE_BUILD_TYPE:STRING=Debug"
+    DEPENDS devicetree_target
 )
-ExternalProject_Get_Property(SwiftZephyrMacros BINARY_DIR)
 
-# Build the arguments to be used by other targets to include the macros
+# Get product paths
+ExternalProject_Get_Property(SwiftZephyrMacrosImpl BINARY_DIR)
 if(CMAKE_HOST_WIN32)
-  set(SWIFTZEPHYR_MACROS_PATH "${BINARY_DIR}/SwiftZephyrMacros.exe")
+    set(SWIFTZEPHYR_MACROS_PATH "${BINARY_DIR}/SwiftZephyrMacros.exe")
+    set(SWIFTZEPHYR_DTGENERATOR_PATH "${BINARY_DIR}/SwiftZephyrDTGenerator.exe")
 else()
-  set(SWIFTZEPHYR_MACROS_PATH "${BINARY_DIR}/SwiftZephyrMacros")
+    set(SWIFTZEPHYR_MACROS_PATH "${BINARY_DIR}/SwiftZephyrMacros")
+    set(SWIFTZEPHYR_DTGENERATOR_PATH "${BINARY_DIR}/SwiftZephyrDTGenerator")
 endif()
+unset(BINARY_DIR)
 
-set(SWIFTZEPHYR_MACRO_OPTIONS
-  "$<$<COMPILE_LANGUAGE:Swift>:SHELL: -load-plugin-executable ${SWIFTZEPHYR_MACROS_PATH}#SwiftZephyrMacros>"
-  "$<$<COMPILE_LANGUAGE:Swift>:-disable-sandbox>"
+# Build a target to propagate the Swift plugin flags easly
+add_library(SwiftZephyrMacros INTERFACE)
+add_dependencies(SwiftZephyrMacros INTERFACE SwiftZephyrMacrosImpl)
+target_compile_options(SwiftZephyrMacros INTERFACE
+    "$<$<COMPILE_LANGUAGE:Swift>:SHELL: -load-plugin-executable ${SWIFTZEPHYR_MACROS_PATH}#SwiftZephyrMacros>"
 )
 
 # Make a macro to generate the device tree wrapper
-if(CMAKE_HOST_WIN32)
-  set(SWIFTZEPHYR_DTGENERATOR_PATH "${BINARY_DIR}/SwiftZephyrDTGenerator.exe")
-else()
-  set(SWIFTZEPHYR_DTGENERATOR_PATH "${BINARY_DIR}/SwiftZephyrDTGenerator")
-endif()
 macro(swiftzephyr_dt_generate KEYWORDS OUTPUT KEYWORDS SHIMS_MODULE_NAME KEYWORDS DT_TYPE_NAME KEYWORDS DEVICE_TYPE_NAME)
     add_custom_command(
         OUTPUT ${OUTPUT}
