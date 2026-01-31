@@ -28,7 +28,7 @@ extension Device {
     /// 
     /// - Throws: EALREADY Device is already initialized.
     public func initialize() throws(ZephyrError) {
-        let error = _initialize()
+        let error = self.__initialize()
         if error.isError {
             throw error
         }
@@ -44,7 +44,7 @@ extension Device {
     @available(*, unavailable, message: "device deinit is not enabled in Zephyr (CONFIG_DEVICE_DEINIT_SUPPORT must be enabled)")
     #endif
     public func deinitialize() throws(ZephyrError) {
-        let error = _deinitialize()
+        let error = __deinitialize()
         if error.isError {
             throw error
         }
@@ -61,7 +61,7 @@ extension Device {
             @_lifetime(borrow self)
             get {
                 var count: Int = 0
-                let buffer = unsafe _get_injected_handles(count: &count)
+                let buffer = unsafe __get_injected_handles(count: &count)
                 let span = unsafe UnsafeBufferPointer(start: buffer, count: count).span
                 return unsafe _overrideLifetime(span, borrowing: self)
             }
@@ -74,7 +74,7 @@ extension Device {
             @_lifetime(borrow self)
             get {
                 var count: Int = 0
-                let buffer = unsafe _get_required_handles(count: &count)
+                let buffer = unsafe __get_required_handles(count: &count)
                 let span = unsafe UnsafeBufferPointer(start: buffer, count: count).span
                 return unsafe _overrideLifetime(span, borrowing: self)
             }
@@ -87,7 +87,7 @@ extension Device {
             @_lifetime(borrow self)
             get {
                 var count: Int = 0
-                let buffer = unsafe _get_supported_handles(count: &count)
+                let buffer = unsafe __get_supported_handles(count: &count)
                 let span = unsafe UnsafeBufferPointer(start: buffer, count: count).span
                 return unsafe _overrideLifetime(span, borrowing: self)
             }

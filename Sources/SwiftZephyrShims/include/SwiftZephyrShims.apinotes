@@ -37,21 +37,26 @@ Functions:
   SwiftSafety: safe
   ResultType: const struct device * _Nullable
 - Name: device_init
-  SwiftName: Device._initialize(self:)
+  SwiftPrivate: true
+  SwiftName: Device.__initialize(self:)
   ResultType: zephyr_error_t
 - Name: device_deinit
-  SwiftName: Device._deinitialize(self:)
+  SwiftPrivate: true
+  SwiftName: Device.__deinitialize(self:)
   ResultType: zephyr_error_t
 - Name: device_handle_get
   SwiftName: getter:Device.handle(self:)
 - Name: device_is_ready
   SwiftName: getter:Device.isReady(self:)
 - Name: device_injected_handles_get
-  SwiftName: Device._get_injected_handles(self:count:)
+  SwiftPrivate: true
+  SwiftName: Device.__get_injected_handles(self:count:)
 - Name: device_required_handles_get
-  SwiftName: Device._get_required_handles(self:count:)
+  SwiftPrivate: true
+  SwiftName: Device.__get_required_handles(self:count:)
 - Name: device_supported_handles_get
-  SwiftName: Device._get_supported_handles(self:count:)
+  SwiftPrivate: true
+  SwiftName: Device.__get_supported_handles(self:count:)
 # -------- Time --------
 - Name: timespec_is_valid
   SwiftName: getter:Timespec.isValid(self:)
