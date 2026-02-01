@@ -1,3 +1,11 @@
+#
+# SwiftZephyrShims.apinotes
+# SwiftZephyr
+#
+# Copyright (C) 2025-2026, by Hunter Baker hunter@literallyanything.net
+# Licensed under MIT
+#
+
 Name: SwiftZephyrShims
 Typedefs:
 - Name: zephyr_error_t

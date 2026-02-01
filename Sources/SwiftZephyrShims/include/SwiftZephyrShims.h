@@ -1,9 +1,9 @@
 /*
- * BridgingHeader.h
- * include
- * 
- * Created by Hunter Baker on 9/01/2025
- * Copyright (C) 2025-2025, by Hunter Baker hunter@literallyanything.net
+ * SwiftZephyrShims.h
+ * SwiftZephyr
+ *
+ * Copyright (C) 2025-2026, by Hunter Baker hunter@literallyanything.net
+ * Licensed under MIT
  */
 
 #pragma once

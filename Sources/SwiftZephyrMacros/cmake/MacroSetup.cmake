@@ -1,3 +1,11 @@
+#
+# MacroSetup.cmake
+# SwiftZephyr
+# -----
+# Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+# Licensed under the MIT License
+#
+
 # Pass along the generated devicetree header path.
 if (DEFINED DEVICETREE_GENERATED_H AND NOT "${DEVICETREE_GENERATED_H}" STREQUAL "")
     message(STATUS "Configuring SwiftZephyrMacros to use ${DEVICETREE_GENERATED_H}")

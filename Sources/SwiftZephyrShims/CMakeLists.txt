@@ -1,3 +1,11 @@
+#
+# CMakeLists.txt
+# SwiftZephyr
+#
+# Copyright (C) 2025-2026, by Hunter Baker hunter@literallyanything.net
+# Licensed under MIT
+#
+
 add_library(SwiftZephyrShims INTERFACE)
 target_include_directories(SwiftZephyrShims INTERFACE
     "$<TARGET_PROPERTY:app,INCLUDE_DIRECTORIES>"

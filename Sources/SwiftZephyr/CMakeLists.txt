@@ -1,3 +1,11 @@
+#
+# CMakeLists.txt
+# SwiftZephyr
+# -----
+# Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+# Licensed under the MIT License
+#
+
 # Generate the device tree wrapper
 set(SWIFTZEPHYR_DT_WRAPPER_PATH "${CMAKE_CURRENT_BINARY_DIR}/DeviceTreeWrapper.swift")
 swiftzephyr_dt_generate(

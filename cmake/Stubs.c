@@ -1,9 +1,9 @@
 /*
  * Stubs.c
  * SwiftZephyr
- *
- * Copyright (C) 2025-2026, by Hunter Baker hunter@literallyanything.net
- * Licensed under MIT
+ * -----
+ * Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+ * Licensed under the MIT License
  */
 
 #include <stdlib.h>

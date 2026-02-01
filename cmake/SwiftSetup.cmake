@@ -1,9 +1,9 @@
 #
 # SwiftSetup.cmake
 # SwiftZephyr
-#
-# Copyright (C) 2025-2026, by Hunter Baker hunter@literallyanything.net
-# Licensed under MIT
+# -----
+# Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+# Licensed under the MIT License
 #
 
 # This is a helper script to setup Swift settings for embedded Swift in Zephyr

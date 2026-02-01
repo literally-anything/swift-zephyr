@@ -1,9 +1,9 @@
-/**
+/*
  * DTGenerator.swift
- * DTGenerator
- * 
- * Created by Hunter Baker on 1/30/2026
- * Copyright (C) 2026-2026, by Hunter Baker hunter@literallyanything.net
+ * SwiftZephyr
+ * -----
+ * Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+ * Licensed under the MIT License
  */
 
 import SwiftSyntax

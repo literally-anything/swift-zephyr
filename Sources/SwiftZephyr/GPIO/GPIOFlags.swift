@@ -1,9 +1,9 @@
-/**
+/*
  * GPIOFlags.swift
- * GPIO
- * 
- * Created by Hunter Baker on 9/07/2025
- * Copyright (C) 2025-2025, by Hunter Baker hunter@literallyanything.net
+ * SwiftZephyr
+ * -----
+ * Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+ * Licensed under the MIT License
  */
 
 internal import SwiftZephyrShims

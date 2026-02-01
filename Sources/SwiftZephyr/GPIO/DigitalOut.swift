@@ -1,9 +1,9 @@
-/**
+/*
  * DigitalOut.swift
- * GPIO
- * 
- * Created by Hunter Baker on 9/06/2025
- * Copyright (C) 2025-2025, by Hunter Baker hunter@literallyanything.net
+ * SwiftZephyr
+ * -----
+ * Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
+ * Licensed under MIT
  */
 
 internal import SwiftZephyrShims
