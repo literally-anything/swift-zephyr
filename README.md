@@ -24,12 +24,15 @@ target_link_libraries(MySwiftApp PRIVATE SwiftZephyr)
 > this fails to build because `findPackage(Zephyr)` must be run before enabling Swift,
 > breaking CMake somehow.
 
-## Strict Memory Safety
-This library is set up with Swift's strict memory safety mode.
-Use this to enable it in your application:
+## Swift CMake Helper
+This package also provides a CMake [helper](cmake/SwiftSetup.cmake) that sets up Swift Embedded for Zephyr automatically.
+It sets all the required compiler flags, sets the compiler target, passes along C flags and defines from Zephyr, provies an implementation for `posix_memalign` for Swift, and enables strict memory safety.
+To use this helper, add the following to your `CMakeLists.txt` after both setting up your project and finding Zephyr:
 ```cmake
-# Enable strict memory safety in all Swift targets
-add_compile_options(
-    "$<$<COMPILE_LANGUAGE:Swift>:-strict-memory-safety>"
-)
+include(extra/SwiftZephyr/cmake/SwiftSetup.cmake)
+
+# Make my Swift app target
+...
+target_link_libraries(MyAppTarget PRIVATE SwiftZephyr)
+target_link_libraries(app PRIVATE MyAppTarget)
 ```

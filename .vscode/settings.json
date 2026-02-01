@@ -1,0 +1,8 @@
+{
+    "psi-header.variables": [
+        ["projectCreationYear", "2025"],
+        ["projectname", "SwiftZephyr"],
+        ["licenseinfo", "Licensed under MIT"]
+    ],
+    "zephyr-workbench.build.west-args": "--cmake-opt \"-S cmake/FakeApp\""
+}
