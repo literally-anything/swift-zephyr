@@ -60,8 +60,18 @@ struct DeviceMacro: ExpressionMacro {
         }
         guard let node else {
             let error = MacroDiagnostic(
-                message: "Device could not be found.",
-                diagnosticID: MessageID(domain: "SwiftZephyrMacros", id: "DeviceMacro.arguments"),
+                message: "Device could not be found: (\(argument.label?.text ?? "_"): \(argumentStr.content.text))",
+                diagnosticID: MessageID(domain: "SwiftZephyrMacros", id: "DeviceMacro.deviceNotFound"),
+                severity: .error
+            )
+            context.diagnose(Diagnostic(node: macroNode, message: error))
+            throw error
+        }
+
+        guard node.isOkay else {
+            let error = MacroDiagnostic(
+                message: "Device is disabled: '\(node.path)'",
+                diagnosticID: MessageID(domain: "SwiftZephyrMacros", id: "DeviceMacro.deviceDisabled"),
                 severity: .error
             )
             context.diagnose(Diagnostic(node: macroNode, message: error))
