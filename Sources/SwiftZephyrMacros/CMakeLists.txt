@@ -12,7 +12,6 @@ project(SwiftZephyrMacros LANGUAGES Swift)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # Setup macro configuration
-set(DEVICETREE_GENERATED_H "/Users/hbaker/zephyr/projects/SwiftDrive/build/primary/zephyr/include/generated/zephyr/devicetree_generated.h")
 if (DEFINED DEVICETREE_GENERATED_H AND NOT "${DEVICETREE_GENERATED_H}" STREQUAL "")
     message(STATUS "Configuring SwiftZephyrMacros to use ${DEVICETREE_GENERATED_H}")
 else()
