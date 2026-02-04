@@ -16,6 +16,12 @@ Typedefs:
 - Name: device_handle_t
   SwiftName: DeviceHandle
   SwiftWrapper: struct
+  SwiftConformsTo: Swift.Equatable
+# -------- GPIO --------
+- Name: gpio_pin_t
+  SwiftName: GPIOPin
+- Name: gpio_flags_t
+  SwiftName: GPIOFlagRaw
 
 Tags:
 # -------- Device --------
@@ -24,6 +30,7 @@ Tags:
   SwiftImportAs: reference
   SwiftReleaseOp: immortal
   SwiftRetainOp: immortal
+  SwiftConformsTo: Swift.Equatable
 # -------- Time --------
 - Name: timespec
   SwiftName: Timespec
@@ -33,6 +40,11 @@ Tags:
 - Name: k_timepoint_t
   SwiftName: Timepoint
   SwiftConformsTo: Swift.Equatable
+# -------- GPIO --------
+- Name: gpio_dt_spec
+  SwiftName: GPIOSpec
+# - Name: gpio_callback
+#   SwiftName: GPIOCallback
 
 Functions:
 # -------- Device --------
@@ -82,3 +94,50 @@ Functions:
   SwiftName: getter:Timepoint.expired(self:)
 - Name: sys_timepoint_timeout
   SwiftName: getter:Timepoint.timeout(self:)
+# -------- GPIO --------
+- Name: gpio_is_ready_dt
+  SwiftName: getter:GPIOSpec.isReady(self:)
+- Name: gpio_pin_is_input_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__isInput(self:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_is_output_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__isOutput(self:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_get_config_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__getConfig(self:flags:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_get_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__getLogical(self:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_get_raw
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__getPhysical(port:pin:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_configure_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__configure(self:extraFlags:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_interrupt_configure_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__interruptConfigure(self:flags:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_set_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__setLogical(self:value:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_set_raw
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__setPhysical(port:pin:value:)
+  ResultType: zephyr_error_t
+- Name: gpio_pin_toggle_dt
+  SwiftPrivate: true
+  SwiftName: GPIOSpec.__toggle(self:)
+  ResultType: zephyr_error_t
+# - Name: gpio_add_callback_dt
+#   SwiftPrivate: true
+#   SwiftName: GPIOSpec.__addCallback(self:)
+#   ResultType: zephyr_error_t

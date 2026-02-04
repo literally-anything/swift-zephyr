@@ -17,11 +17,13 @@ swiftzephyr_dt_generate(
 
 # Setup the library target
 add_library(SwiftZephyr STATIC
-    Device.swift
     Error.swift
     Reset.swift
     Thread.swift
     Time.swift
+    Device/Device.swift
+    GPIO/GPIODevice.swift
+    GPIO/DigitalOut.swift
     ${SWIFTZEPHYR_DT_WRAPPER_PATH}
 )
 set_target_properties(SwiftZephyr PROPERTIES Swift_MODULE_NAME Zephyr)
@@ -50,6 +52,8 @@ target_compile_options(SwiftZephyr PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Werror TemporaryPointers>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Werror ClangDeclarationImport>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Werror ForeignReferenceType>"
+
+    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Wwarning PerformanceHints>"
 )
 
 # Pass along some config parameters to swift so that we can use conditional compilation with them

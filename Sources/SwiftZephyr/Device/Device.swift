@@ -111,11 +111,31 @@ public enum DeviceTree: SendableMetatype {
     // See Sources/SwiftZephyrMacros/cmake/MacroSetup.cmake:37
 }
 
+/// Get a device from the Zephyr device tree.
+/// 
+/// This is a replacement for the DT... C macros in Zephyr.
+/// 
+/// - Parameter path: The path of the device in the device tree.
 @freestanding(expression)
-public macro dtDevice(_: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(path: _const String) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+/// Get a device from the Zephyr device tree.
+/// 
+/// This is a replacement for the DT... C macros in Zephyr.
+/// 
+/// - Parameter label: A label for the device in the device tree.
 @freestanding(expression)
-public macro dtDevice(path: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(label: _const String) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+/// Get a device from the Zephyr device tree.
+/// 
+/// This is a replacement for the DT... C macros in Zephyr.
+/// 
+/// - Parameter alias: An alias for the device in the device tree.
 @freestanding(expression)
-public macro dtDevice(label: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(alias: _const String) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+/// Get a device from the Zephyr device tree.
+/// 
+/// This is a replacement for the DT... C macros in Zephyr.
+/// 
+/// - Parameter identifier: Either a path, a label, or an alias of a device in the device tree.
 @freestanding(expression)
-public macro dtDevice(alias: any ExpressibleByStringLiteral) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")
+public macro dtDevice(_ identifier: _const String) -> Device = #externalMacro(module: "SwiftZephyrMacros", type: "DeviceMacro")

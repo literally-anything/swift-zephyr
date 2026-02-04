@@ -3,228 +3,168 @@
  * SwiftZephyr
  * -----
  * Copyright (c) 2025 - 2026 Hunter Baker hunter@literallyanything.net
- * Licensed under MIT
+ * Licensed under the MIT License
  */
 
 internal import SwiftZephyrShims
 
-/// Represents a digital output pin in the Zephyr RTOS.
+/// Represents a digital output GPIO pin in the Zephyr RTOS.
 public struct DigitalOut: @unchecked Sendable, SendableMetatype {
-    /// The underlying Zephyr GPIO port device.
-    public let device: Device
-    /// The GPIO pin number.
-    public let pin: gpio_pin_t
+    /// The underlying Zephyr GPIO device info.
+    public let device: GPIOSpec
 
-    /// Initializes a `DigitalOut` with the given device and pin number.
-    /// - Parameters:
-    ///   - device: The GPIO device.
-    ///   - pin: The GPIO pin number.
-    ///   - intialState: The initial state of the pin. If `nil`, the pin state is set to logical `0`.
-    ///   - invert: Whether to invert the pin logic. Defaults to `false (active HIGH).
-    ///   - driveMode: The drive mode of the pin. Defaults to `.pushPull`.
-    /// - Throws: A `ZephyrError` if the operation fails.
-    public init(
-        device: Device, pin: gpio_pin_t,
-        intialState: LogicLevel?,
-        invert: Bool = false,
-        driveMode: DriveMode = .pushPull
-    ) throws(ZephyrError) {
+    /// Initialize a `DigitalOut` from an already confgured GPIO device spec.
+    /// - Parameter device: The GPIO device that is already configured as an input.
+    /// - Returns: `nil` if the device is not ready.
+    public init?(
+        alreadyConfigured device: GPIOSpec
+    ) {
+        guard device.isReady else { return nil }
+        assert((try? device.isOutput) != false, "\(device.debugDescription) is not configured as an input.")
         self.device = device
-        self.pin = pin
-
-        var flags: GPIOFlags = .output
-
-        if invert {
-            flags.insert(.activeLow)
-        }
-
-        switch intialState {
-        case .some(.low):
-            flags.insert(.outputInitLow)
-        case .some(.high):
-            flags.insert(.outputInitHigh)
-        case .none:
-            flags.insert([.outputInitLogical, .outputInitLow])
-        }
-
-        switch driveMode {
-        case .pushPull:
-            flags.insert(.pushPull)
-        case .openDrain:
-            flags.insert([.singleEnded, .openDrain])
-        case .openSource:
-            flags.insert([.singleEnded, .openSource])
-        }
-
-        let ret = gpio_pin_configure(device, pin, flags.rawValue)
-        guard ret == 0 else {
-            throw ZephyrError(code: ret)
-        }
     }
-
-    /// Initializes a `DigitalOut` with the given GPIO pin information.
+    /// Initialize a `DigitalOut` from an unconfgured device spec or by reconfiguring one.
     /// - Parameters:
-    ///   - dtSpec: The GPIO pin information.
-    ///   - intialState: The initial state of the pin. If `nil`, the pin state is set to logical `0`.
-    ///   - invert: Whether to invert the pin logic. Defaults to `false (active HIGH).
-    ///   - driveMode: The drive mode of the pin. Defaults to `.pushPull`.
-    /// - Throws: A `GPIOInitError` if the operation fails.
-    public init(
-        dtSpec: gpio_dt_spec,
-        intialState: LogicLevel?,
-        invert: Bool = false,
-        driveMode: DriveMode = .pushPull
-    ) throws(InitError) {
-        guard withUnsafePointer(to: dtSpec, { gpio_is_ready_dt($0) }) else {
-            throw .deviceNotReady
-        }
-        do {
-            try self.init(
-                device: dtSpec.port, pin: dtSpec.pin,
-                intialState: intialState,
-                invert: invert,
-                driveMode: driveMode
-            )
-        } catch let error {
-            throw .zephyrError(error)
-        }
-    }
+    ///     - device: The GPIO device to be reconfigured.
+    ///     - extraFlags: Extra GPIO flags to pass when configuring.
+    /// - Returns: `nil` if the device is not ready.
+    /// - Throws: `ZephyrError` if configuring fails.
+    public init?(
+        device: GPIOSpec,
+        activeLevel: GPIOActiveLevel = .activeHigh,
+        driveMode: GPIOPinDriveMode = .pushPull,
+        extraFlags: GPIOFlagRaw = 0
+    ) throws(ZephyrError) {
+        guard device.isReady else { return nil }
+        self.device = device
 
-    /// Internal initializer that does not check if the device is ready or configure the pin.
-    /// - Parameters:
-    ///   - uncheckedDevice: The GPIO device.
-    ///   - pin: The GPIO pin number.
-    /// - Note: This initializer is unsafe because it does not check if the pin is valid or even an output pin.
-    internal init(uncheckedDevice: Device, pin: gpio_pin_t) {
-        self.device = uncheckedDevice
-        self.pin = pin
-    }
+        var flags = extraFlags
+        flags |= activeLevel.rawValue
+        flags |= driveMode.rawValue
+        flags |= GPIODirection.output.rawValue
 
-    /// Errors that can occur when initializing a `DigitalOut`.
-    public enum InitError: Error {
-        /// The GPIO device is not ready.
-        case deviceNotReady
-        ///. A Zephyr error occurred.
-        case zephyrError(ZephyrError)
-    }
-
-    /// The logic level of the pin.
-    /// - Note: This is not affected by the `invert` parameter in the initializer .
-    public enum LogicLevel {
-        case low
-        case high
-    }
-
-    /// The drive mode of the pin.
-    public enum DriveMode {
-        /// The pin is configured as a push-pull output.
-        /// This means the pin can drive both high and low.
-        case pushPull
-        /// The pin is configured as an open-drain output.
-        /// This means the pin will only drive low, and will float when set high.
-        case openDrain
-        /// The pin is configured as an open-source output.
-        /// This means the pin will only drive high, and will float when set low.
-        case openSource
-    }
-
-    /// Sets the pin to the given state.
-    /// - Note: This ignores errors from Zephyr in release builds. In debug builds, it will assert if an error occurs.
-    ///         To handle errors, use `setState(_:)`, `enable()`, `disable()`, and `toggle()` instead.
-    public var state: Bool {
-        get {
-            let ret = gpio_pin_get(device, pin)
-            assert(ret >= 0, "Failed to get pin state: \(ret)")
-            return ret == 1
-        }
-        set {
-            let ret = gpio_pin_set(device, pin, newValue ? 1 : 0)
-            assert(ret == 0, "Failed to set pin state: \(ret)")
-       }
-    }
-
-    internal var level: LogicLevel {
-        get {
-            let ret = gpio_pin_get_raw(device, pin)
-            assert(ret >= 0, "Failed to get pin level: \(ret)")
-            return ret == 1 ? .high : .low
-        }
-    }
-
-    /// Sets the pin to a specific state.
-    /// - Parameter state: `true` to set the pin to logical high, `false` to set it to logical low.
-    /// - Throws: A `ZephyrError` if the operation fails.
-    public func setState(_ state: Bool) throws(ZephyrError) {
-        let ret = gpio_pin_set(device, pin, state ? 1 : 0)
-        guard ret == 0 else {
-            throw ZephyrError(code: ret)
-        }
-    }
-
-    /// Sets the pin to logical high.
-    /// - Throws: A `ZephyrError` if the operation fails.
-    public func enable() throws(ZephyrError) {
-        try setState(true)
-    }
-    /// Sets the pin to logical low.
-    /// - Throws: A `ZephyrError` if the operation fails.
-    public func disable() throws(ZephyrError) {
-        try setState(false)
-    }
-    /// Toggles the pin state.
-    /// - Throws: A `ZephyrError` if the operation fails.
-    public func toggle() throws(ZephyrError) {
-        let ret = gpio_pin_toggle(device, pin)
-        guard ret == 0 else {
-            throw ZephyrError(code: ret)
+        let error = device.__configure(extraFlags: flags)
+        guard !error.isError else {
+            throw error
         }
     }
 }
 
 extension DigitalOut {
-    /// Creates a `DigitalOut` for a pin that is already configured as an output.
-    /// - Parameters:
-    ///   - device: The GPIO device.
-    ///   - pin: The GPIO pin number.
-    /// - Returns: A `DigitalOut` instance if the pin is configured as an output, otherwise `nil`.
-    public static func alreadyConfigured(
-        device: Device, pin: gpio_pin_t
-    ) -> DigitalOut? {
-        var flags: gpio_flags_t = 0
-        let ret = gpio_pin_get_config(device, pin, &flags)
-
-        guard ret == 0, GPIOFlags(rawValue: flags).contains(.output) else {
-            return nil
+    /// The current GPIO flags for this pin.
+    /// - Throws: If there was an error fetching the configuration.
+    public var configuration: GPIOFlagRaw {
+        get throws(ZephyrError) {
+            var flags: GPIOFlagRaw = 0
+            let error = unsafe device.__getConfig(flags: &flags)
+            guard !error.isError else {
+                throw error
+            }
+            return flags
         }
-        return DigitalOut(uncheckedDevice: device, pin: pin)
+    }
+
+    /// Reconfigure the pin. This only changes settings that are passed unless `reset` is `true`.
+    /// - Parameters:
+    ///     - activeLevel: The logical active level of the pin.
+    ///     - driveMode: The drive mode of the pin.
+    ///     - extraFlags: Any extra flags to be added.
+    ///     - reset: When `true`, discard all prevous configuration.
+    /// - Throws: If there was any error in fetching or setting the configuration.
+    public func configure(
+        activeLevel: GPIOActiveLevel? = nil,
+        driveMode: GPIOPinDriveMode? = nil,
+        extraFlags: GPIOFlagRaw = 0,
+        reset: Bool = false
+    ) throws(ZephyrError) {
+        var flags: GPIOFlagRaw
+        if reset {
+            flags = 0
+        } else {
+            flags = try configuration
+        }
+
+        if let activeLevel {
+            flags |= activeLevel.rawValue
+        }
+        if let driveMode {
+            flags |= driveMode.rawValue
+        }
+        flags |= extraFlags
+
+        let error = device.__configure(extraFlags: flags)
+        guard !error.isError else {
+            throw error
+        }
+    }
+}
+
+extension DigitalOut {
+    /// The current logical sate of the pin.
+    public var state: Bool {
+        get throws(ZephyrError) {
+            let error = device.__getLogical()
+            guard !error.isError else {
+                throw error
+            }
+            return error.rawValue == 1
+        }
+    }
+    /// Sets the logical state of the pin.
+    /// - Parameter state: `true` for HIGH, `false` for LOW.
+    /// - Throws: If there was an error setting the state.
+    public func set(state: Bool) throws(ZephyrError) {
+        let error = device.__setLogical(value: state ? 0 : 1)
+        guard !error.isError else {
+            throw error
+        }
+    }
+
+    /// The current physical state of the pin.
+    public var physicalState: Bool {
+        @available(*, unavailable)
+        get throws(ZephyrError) {
+            let error = GPIOSpec.__getPhysical(port: device.port, pin: device.pin)
+            guard !error.isError else {
+                throw error
+            }
+            return error.rawValue == 1
+        }
+    }
+    /// Sets the physical state of the pin.
+    /// - Parameter state: `true` for HIGH, `false` for LOW.
+    /// - Throws: If there was an error setting the state.
+    public func set(physicalState state: Bool) throws(ZephyrError) {
+        let error = GPIOSpec.__setPhysical(port: device.port, pin: device.pin, value: state ? 0 : 1)
+        guard !error.isError else {
+            throw error
+        }
+    }
+
+    /// Toggle the state of the pin.
+    /// - Throws: If there was an error toggling the pin.
+    public func toggle() throws(ZephyrError) {
+        let error = device.__toggle()
+        guard !error.isError else {
+            throw error
+        }
     }
 }
 
 extension DigitalOut: CustomStringConvertible {
     public var description: String {
-        "DigitalOut(device: \(String(cString: device.pointee.name)), pin: \(pin), state: \(state), level: \(level == .high ? "HIGH" : "LOW"))"
+        "DigitalOut(port: \(unsafe String(cString: device.port.name)), pin: \(device.pin))"
     }
 }
 
 extension DigitalOut {
     /// Disconnects the given GPIO pin.
     /// Configures the pin to not be an input or output.
-    /// - Parameters:
-    ///   - device: The GPIO device.
-    ///   - pin: The GPIO pin number.
     /// - Throws: A `ZephyrError` if the operation fails.
-    public static func disconnect(device: Device, pin: gpio_pin_t) throws(ZephyrError) {
-        let ret = gpio_pin_configure(device, pin, 0)
-        guard ret == 0 else {
-            throw ZephyrError(code: ret)
-        }
-    }
-
-    /// Disconnects the given GPIO pin.
-    /// Configures the pin to not be an input or output.
-    /// - Parameter dtSpec: The GPIO pin information.
-    /// - Throws: A `ZephyrError` if the operation fails.
-    public static func disconnect(_ dtSpec: gpio_dt_spec) throws(ZephyrError) {
-        try Self.disconnect(device: dtSpec.port, pin: dtSpec.pin)
+    public func disconnect() throws(ZephyrError) {
+        try configure(
+            extraFlags: GPIODirection.disconnected.rawValue,
+            reset: true
+        )
     }
 }

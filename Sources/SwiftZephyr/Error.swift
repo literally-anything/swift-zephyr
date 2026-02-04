@@ -10,6 +10,6 @@
 
 extension ZephyrError {
     internal var isError: Bool {
-        rawValue != 0
+        rawValue < 0
     }
 }
