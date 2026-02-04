@@ -30,6 +30,9 @@ target_link_libraries(SwiftZephyr PUBLIC SwiftZephyrMacros)
 target_link_libraries(SwiftZephyr PUBLIC SwiftZephyrShims)
 
 target_compile_options(SwiftZephyr PRIVATE
+    # SwiftZephyr doesn't use existentials at all, so disable them
+    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-disable-experimental-feature EmbeddedExistentials>"
+
     # For Mutex implementation
     "$<$<COMPILE_LANGUAGE:Swift>:-enable-builtin-module>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-enable-experimental-feature RawLayout>"

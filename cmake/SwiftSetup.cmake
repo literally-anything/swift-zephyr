@@ -54,6 +54,13 @@ if(NOT DEFINED DISABLE_STRICT_MEMORY_SAFETY)
     )
 endif()
 
+# Normally, EmbeddedExistentials are enabled. This will disable them.
+if(DEFINED DISABLE_EMBEDDED_EXISTENTIALS)
+    add_compile_options(
+        "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-disable-experimental-feature EmbeddedExistentials>"
+    )
+endif()
+
 # Import TOOLCHAIN_C_FLAGS from Zephyr as -Xcc flags
 foreach(flag ${TOOLCHAIN_C_FLAGS})
     # Skip flags that are not known to swiftc
