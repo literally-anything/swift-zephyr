@@ -48,6 +48,9 @@ Tags:
 # -------- GPIO --------
 - Name: gpio_dt_spec
   SwiftName: GPIOSpec
+  Fields:
+  - Name: dt_flags
+    SwiftName: dtFlags
 # - Name: gpio_callback
 #   SwiftName: GPIOCallback
 
