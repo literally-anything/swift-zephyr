@@ -24,8 +24,8 @@ extension Timespec: Swift.Equatable, Swift.Hashable {
         }
     }
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(tv_sec)
-        hasher.combine(tv_nsec)
+        hasher.combine(seconds)
+        hasher.combine(nanoseconds)
     }
 }
 

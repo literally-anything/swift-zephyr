@@ -34,6 +34,11 @@ Tags:
 # -------- Time --------
 - Name: timespec
   SwiftName: Timespec
+  Fields:
+  - Name: tv_sec
+    SwiftName: seconds
+  - Name: tv_nsec
+    SwiftName: nanoseconds
 - Name: k_timeout_t
   SwiftName: Timeout
   SwiftConformsTo: Swift.Equatable
