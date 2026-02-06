@@ -9,7 +9,16 @@
 @_exported public import struct SwiftZephyrShims.ZephyrError
 
 extension ZephyrError {
-    internal var isError: Bool {
+    public var isError: Bool {
         rawValue < 0
     }
 }
+
+/// Wraps a function with a Zephyr return code in a throwing function.
+/// 
+/// This is intended to be attached to C functions on import.
+@attached(peer, names: overloaded)
+public macro _ZephyrError(
+    returns: Bool = false,
+    unsafe: Bool = false
+) = #externalMacro(module: "SwiftZephyrMacros", type: "ErrorMacro")

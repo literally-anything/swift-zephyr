@@ -20,6 +20,7 @@ struct MacroDiagnostic: DiagnosticMessage, Error {
 @main
 struct MacroPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        DeviceMacro.self
+        DeviceMacro.self,
+        ErrorMacro.self
     ]
 }

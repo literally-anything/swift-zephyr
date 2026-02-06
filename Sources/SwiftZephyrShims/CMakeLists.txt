@@ -14,6 +14,7 @@ target_include_directories(SwiftZephyrShims INTERFACE
 
 target_compile_options(SwiftZephyrShims INTERFACE
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xcc -fapinotes-modules>"
+    "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-enable-experimental-feature MacrosOnImports>"
 )
 
 add_dependencies(SwiftZephyrShims syscall_list_h_target)
